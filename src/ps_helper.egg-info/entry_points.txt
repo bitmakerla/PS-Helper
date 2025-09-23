@@ -1,0 +1,2 @@
+[console_scripts]
+ps-helper = ps_helper.cli:main
