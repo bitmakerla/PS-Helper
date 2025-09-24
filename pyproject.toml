@@ -20,7 +20,4 @@ dependencies = [
 ps-helper = "ps_helper.cli:main"
 
 [tool.setuptools.packages.find]
-where = ["."]
-
-[tool.setuptools.packages.find]
 where = ["src"]
