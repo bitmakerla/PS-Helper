@@ -8,7 +8,7 @@ TEMPLATE_REPO = "https://github.com/bitmakerla/scrapy_template.git"
 @click.group()
 def main():
     """PS Helper CLI"""
-    pass
+    click.echo("🚀 PS Helper CLI is running!")
 
 
 @main.command()
