@@ -22,4 +22,3 @@ __all__ = [
     "extract_text_batch",
     "URLBlocker",
 ]
-
