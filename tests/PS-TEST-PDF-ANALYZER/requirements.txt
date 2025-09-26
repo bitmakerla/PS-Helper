@@ -1,0 +1,3 @@
+Scrapy==2.10.1
+Twisted==22.10
+# git+https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/bitmakerla/spider-utils.git

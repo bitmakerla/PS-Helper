@@ -1,0 +1,33 @@
+[flake8]
+exclude = 
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    env,
+    build,
+    dist
+
+# Files or patterns that Flake8 will ignore
+per-file-ignores =
+    __init__.py:F401
+
+# Maximum number of characters allowed on a line
+max-line-length = 88
+
+# Maximum number of cyclomatic complexity allowed
+max-complexity = 10
+
+# Include the following warnings in the results:
+# - W503: Split line warning before a binary operator
+# - E501: line too long (handled by max-line-length)
+# - C901: function too complex
+select = C,E,F,W,B,B950
+
+# Ignore the following errors and warnings:
+# - E203: white space before ':'
+# - W503: split line before a binary operator
+ignore = E203, W503, E501, W605, E722, C901, E741, E712
+
+# Enable checks for docstrings
+docstring-convention = google
