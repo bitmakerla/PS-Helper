@@ -1,0 +1,19 @@
+name: Deploy on bitmaker cloud
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  project_deploy:
+    runs-on: ubuntu-latest
+    name: Deploy on bitmaker cloud
+    steps:
+      - name: Checkout the repo 
+        uses: actions/checkout@v3
+      - name: Deploy
+        run: |
+          python -m pip install estela
+          estela login --username ${{ secrets.BMC_USER }} --password ${{ secrets.BMC_PASSWORD }} --host ${{ secrets.BMC_HOST }}
+          estela deploy
