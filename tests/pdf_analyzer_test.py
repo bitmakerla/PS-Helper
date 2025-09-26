@@ -3,7 +3,9 @@ from ps_helper.pdf_analyzer import PDFAnalyzer
 
 LOCAL_PDF_PATH = "test_files/scansmpl.pdf"
 
-REMOTE_PDF_URL = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+REMOTE_PDF_URL = (
+    "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+)
 
 
 def test_local_pdf():

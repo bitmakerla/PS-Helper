@@ -22,10 +22,7 @@ def create_repo_template(project_name):
         return
 
     try:
-        subprocess.run(
-            ["git", "clone", TEMPLATE_REPO, project_name],
-            check=True
-        )
+        subprocess.run(["git", "clone", TEMPLATE_REPO, project_name], check=True)
         # remove .git so it's a clean project
         git_dir = os.path.join(project_name, ".git")
         subprocess.run(["rm", "-rf", git_dir], check=True)

@@ -95,6 +95,7 @@ class PDFSpiderBatch(scrapy.Spider):
 
         self.logger.info(f"Found {len(pdf_files)} PDFs to process in batch.")
 
+        # Extract text from PDF bytes (batch)
         results = self.pdf_analyzer.extract_text_batch(pdf_files)
 
         for result in results:
