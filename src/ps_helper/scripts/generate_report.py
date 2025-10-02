@@ -543,7 +543,7 @@ def generate_html_report(json_path):
                 color: #232323;
                 line-height: 1;
             }}
-            
+
             .status-text p {{
                 font-size: 16px;
                 font-weight: 600;
