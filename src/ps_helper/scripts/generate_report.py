@@ -926,4 +926,4 @@ def generate_html_report(json_path):
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html_template)
 
-    return output_path
+    return output_path, html_template

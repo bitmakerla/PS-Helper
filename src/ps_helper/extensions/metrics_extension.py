@@ -4,6 +4,8 @@ import json
 import math
 import datetime
 from collections import defaultdict
+from ..scripts.generate_report import generate_html_report
+from ..scripts.utils import upload_html_to_s3
 
 from scrapy import signals
 from pydantic import ValidationError
@@ -202,3 +204,30 @@ class MetricsExtension:
 
         spider.logger.info(f"Saved metrics: {file_path}")
         print(json.dumps(metrics, indent=2, ensure_ascii=False))
+
+        if os.getenv('PRODUCTION') == 'True':
+            try:
+                _, html_content = generate_html_report(file_path)
+
+                url = self._upload_report_to_s3(html_content, spider)
+                spider.logger.info(f"Report uploaded to S3: {url}")
+
+            except Exception as e:
+                spider.logger.error(f"Failed to generate/upload HTML report: {e}")
+
+    def _upload_report_to_s3(self, html_content, spider):
+        """Upload HTML report to S3 from memory"""
+
+        bucket_name = os.getenv('S3_BUCKET_NAME')
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        key = f"scrapy-reports/{spider.name}/{timestamp}-report.html"
+
+        url = upload_html_to_s3(
+            html_str=html_content,
+            bucket=bucket_name,
+            key=key,
+            publico=False,
+            expira_seg=3 * 24 * 3600
+        )
+
+        return url
