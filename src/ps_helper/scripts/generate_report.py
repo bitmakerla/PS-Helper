@@ -202,15 +202,15 @@ def generate_html_report(json_path):
     # Success rate
     if scrapy_stats['success_rate'] >= 95:
         status_class = "success"
-        status_text = "Exitoso"
+        status_text = "Successful"
         icon = "✅"
     elif scrapy_stats['success_rate'] >= 80:
         status_class = "warning"
-        status_text = "Con Advertencias"
+        status_text = "With Warnings"
         icon = "⚠️"
     else:
         status_class = "error"
-        status_text = "Error Crítico"
+        status_text = "Critical Error"
         icon = "❌"
 
     # 1. Bar chart
@@ -291,7 +291,7 @@ def generate_html_report(json_path):
             full_html=False
         )
     else:
-        pie_html = '<div style="text-align: center; padding: 40px; color: #6b7280;"><p style="font-size: 18px;">✅ No se registraron errores durante el scraping</p></div>'
+        pie_html = '<div style="text-align: center; padding: 40px; color: #6b7280;"><p style="font-size: 18px;">✅ No errors were recorded during scraping</p></div>'
 
     # 3. Timeline chart
     fig_line = px.line(df_timeline, x='Time', y='Items', markers=True)
@@ -679,8 +679,8 @@ def generate_html_report(json_path):
             <div class="header">
                 <div class="header-content">
                     <div class="header-text">
-                        <h1>Reporte de Métricas Scrapy</h1>
-                        <p class="subtitle"><strong>Spider:</strong> {scrapy_stats['spider_name']} | <strong>Ejecutado:</strong> {datetime.now().strftime('%d %b %Y, %H:%M')}</p>
+                        <h1>Scrapy Metrics Report</h1>
+                        <p class="subtitle"><strong>Spider:</strong> {scrapy_stats['spider_name']} | <strong>Executed:</strong> {datetime.now().strftime('%d %b %Y, %H:%M')}</p>
                     </div>
                     <div class="header-logo">
                         <img src="{logo}" alt="Logo">
@@ -692,7 +692,7 @@ def generate_html_report(json_path):
                 <div class="status-left">
                     <div class="status-icon">{icon}</div>
                     <div class="status-text">
-                        <h2>Estado General</h2>
+                        <h2>Overall Status</h2>
                         <p class="{status_class}">{status_text}</p>
                     </div>
                 </div>
