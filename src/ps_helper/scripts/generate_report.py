@@ -637,6 +637,7 @@ def generate_html_report(json_path):
                 display: flex;
                 align-items: center;
                 gap: 12px;
+                line-height: 1;
             }}
 
             .card-title svg {{
