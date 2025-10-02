@@ -205,6 +205,49 @@ def generate_html_report(json_path):
             data,
         )
 
+    def _generate_retry_reasons_html(data):
+        retries = data.get('retries', {})
+        by_reason = retries.get('by_reason', {})
+
+        if not by_reason:
+            return '<p style="text-align: center; color: #6b7280; padding: 20px;">No retries occurred</p>'
+
+        html = '<div class="retry-table">'
+        html += '<table style="width: 100%; border-collapse: collapse;">'
+        html += '<thead><tr style="border-bottom: 2px solid #e5e7eb;">'
+        html += '<th style="text-align: left; padding: 12px; color: #6b7280; font-weight: 600;">Reason</th>'
+        html += '<th style="text-align: right; padding: 12px; color: #6b7280; font-weight: 600;">Count</th>'
+        html += '<th style="text-align: right; padding: 12px; color: #6b7280; font-weight: 600;">Percentage</th>'
+        html += '<th style="text-align: left; padding: 12px; color: #6b7280; font-weight: 600;">Description</th>'
+        html += '</tr></thead><tbody>'
+
+        total = retries.get('total', sum(by_reason.values()))
+
+        descriptions = {
+            'twisted.web._newclient.ResponseNeverReceived': 'Server did not respond or connection was closed before receiving response',
+            'twisted.internet.error.TimeoutError': 'Request timed out - server took too long to respond',
+            'twisted.internet.error.ConnectionRefusedError': 'Server refused the connection',
+            'twisted.internet.error.DNSLookupError': 'DNS lookup failed - domain not found',
+            'twisted.internet.error.ConnectionLost': 'Connection was lost during the request'
+        }
+
+        sorted_reasons = sorted(by_reason.items(), key=lambda x: x[1], reverse=True)
+
+        for reason, count in sorted_reasons:
+            percentage = (count / total * 100) if total > 0 else 0
+            clean_reason = reason.split('.')[-1]  # Get last part of error name
+            description = descriptions.get(reason, 'Network or connection error')
+
+            html += '<tr style="border-bottom: 1px solid #f3f4f6;">'
+            html += f'<td style="padding: 12px;"><code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 13px;">{clean_reason}</code></td>'
+            html += f'<td style="text-align: right; padding: 12px; font-weight: 600; color: #FF5733;">{count:,}</td>'
+            html += f'<td style="text-align: right; padding: 12px; color: #6b7280;">{percentage:.1f}%</td>'
+            html += f'<td style="padding: 12px; color: #6b7280; font-size: 14px;">{description}</td>'
+            html += '</tr>'
+
+        html += '</tbody></table></div>'
+        return html
+
     scrapy_stats, df_status, df_errors, df_timeline, df_fields, resources, data = (
         load_scrapy_stats(json_path)
     )
@@ -687,6 +730,67 @@ def generate_html_report(json_path):
                     grid-template-columns: 1fr;
                 }}
             }}
+
+            .two-column-grid {{
+                display: grid;
+                grid-template-columns: 3fr 1fr;
+                gap: 24px;
+                margin-bottom: 24px;
+            }}
+
+            .large-column {{
+                min-width: 0;
+            }}
+
+            .small-column {{
+                display: flex;
+                flex-direction: column;
+            }}
+
+            .vertical-metrics {{
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }}
+
+            .metric-box-vertical {{
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+                padding: 20px;
+                text-align: center;
+            }}
+
+            .metric-box-vertical .value {{
+                font-size: 28px;
+                font-weight: 700;
+                color: #232323;
+                line-height: 1.5;
+            }}
+
+            .metric-box-vertical .label {{
+                font-size: 13px;
+                color: #6b7280;
+                margin-top: 4px;
+            }}
+
+            .retry-table {{
+                overflow-x: auto;
+            }}
+
+            .retry-table table {{
+                font-size: 14px;
+            }}
+
+            .retry-table code {{
+                font-family: 'Courier New', monospace;
+            }}
+
+            @media (max-width: 1024px) {{
+                .two-column-grid {{
+                    grid-template-columns: 1fr;
+                }}
+            }}
         </style>
     </head>
     <body>
@@ -794,6 +898,44 @@ def generate_html_report(json_path):
                         <div class="value">{resources['downloaded_bytes']} MB</div>
                         <div class="label">Downloaded Bytes</div>
                     </div>
+                </div>
+            </div>
+
+            <div class="two-column-grid">
+                <div class="card large-column">
+                    <div class="card-title">{svg_icons['goat']} Scraped Fields Completeness</div>
+                    {fields_html}
+                </div>
+
+                <div class="small-column">
+                    <div class="card">
+                        <div class="card-title">{svg_icons['aditionals']} Additional Metrics</div>
+                        <div class="vertical-metrics">
+                            <div class="metric-box-vertical">
+                                <div class="value">{data.get('retries', {}).get('total', 0)}</div>
+                                <div class="label">Retries</div>
+                            </div>
+                            <div class="metric-box-vertical">
+                                <div class="value">{data.get('duplicates', 0)}</div>
+                                <div class="label">Duplicates</div>
+                            </div>
+                            <div class="metric-box-vertical">
+                                <div class="value">{data.get('timeouts', 0)}</div>
+                                <div class="label">Timeouts</div>
+                            </div>
+                            <div class="metric-box-vertical">
+                                <div class="value">{resources['downloaded_bytes']} MB</div>
+                                <div class="label">Downloaded</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">{svg_icons['http']} Retry Reasons Breakdown</div>
+                <div class="retry-reasons">
+                    {_generate_retry_reasons_html(data)}
                 </div>
             </div>
 
