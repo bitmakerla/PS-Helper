@@ -43,10 +43,20 @@ Check available commands:
 ps-helper --help
 ```
 
+### Create Project Template
+
 Create a new project from the template:
 ```bash
 ps-helper create-repo-template MyProject
 ```
+
+### Generate Scrapy Reports
+
+Generate beautiful HTML reports from Scrapy metrics JSON files:
+```bash
+ps-helper create-report scrapy_stats.json
+```
+This will automatically create a report named scrapy_stats-report.html in the same directory as your metrics file.
 
 ---
 

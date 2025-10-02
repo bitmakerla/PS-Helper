@@ -1,6 +1,8 @@
+import json
 import os
 import subprocess
 import click
+from src.ps_helper.scripts.generate_report import generate_html_report
 
 TEMPLATE_REPO = "https://github.com/bitmakerla/scrapy_template.git"
 
@@ -29,3 +31,21 @@ def create_repo_template(project_name):
         click.echo(f"✅ Project '{project_name}' created successfully!")
     except subprocess.CalledProcessError as e:
         click.echo(f"❌ Error cloning template: {e}")
+
+
+@main.command()
+@click.argument("metrics_path", type=click.Path(exists=True))
+def create_report(metrics_path):
+    """Generate HTML report from Scrapy metrics JSON file"""
+    click.echo(f"📊 Generating report from '{metrics_path}'...")
+
+    try:
+        report_path = generate_html_report(metrics_path)
+        click.echo(f"✅ Report generated successfully: {report_path}")
+
+    except FileNotFoundError:
+        click.echo(f"❌ File '{metrics_path}' not found")
+    except json.JSONDecodeError:
+        click.echo(f"❌ Invalid JSON file: '{metrics_path}'")
+    except Exception as e:
+        click.echo(f"❌ Error generating report: {e}")
