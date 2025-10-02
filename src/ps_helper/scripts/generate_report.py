@@ -874,33 +874,6 @@ def generate_html_report(json_path):
                 {line_html}
             </div>
 
-            <div class="card">
-                <div class="card-title">{svg_icons['goat']} Scraped Fields Completeness</div>
-                {fields_html}
-            </div>
-
-            <div class="card">
-                <div class="card-title">{svg_icons['aditionals']} Additional Metrics</div>
-                <div class="metrics-grid">
-                    <div class="metric-box">
-                        <div class="value">{data.get('retries', {}).get('total', 0)}</div>
-                        <div class="label">Retries</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="value">{data.get('duplicates', 0)}</div>
-                        <div class="label">Duplicates</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="value">{data.get('timeouts', 0)}</div>
-                        <div class="label">Timeouts</div>
-                    </div>
-                    <div class="metric-box">
-                        <div class="value">{resources['downloaded_bytes']} MB</div>
-                        <div class="label">Downloaded Bytes</div>
-                    </div>
-                </div>
-            </div>
-
             <div class="two-column-grid">
                 <div class="card large-column">
                     <div class="card-title">{svg_icons['goat']} Scraped Fields Completeness</div>
