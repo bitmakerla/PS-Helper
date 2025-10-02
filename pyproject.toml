@@ -15,6 +15,9 @@ requires-python = ">=3.9"
 dependencies = [
   "click>=8.0",
   "scrapy>=2.11",
+  "Twisted==22.10.0",
+  "smart_open",
+  "Cerberus",
   "pydantic>=2.0",
   "pymupdf>=1.24.0",
   "pytesseract>=0.3.10",
@@ -23,7 +26,7 @@ dependencies = [
 ]
 
 [project.scripts]
-ps-helper = "ps_helper.cli:main"
+ps-helper = "ps_helper.cli.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

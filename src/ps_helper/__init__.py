@@ -1,8 +1,8 @@
 from .hello import hello
-from .url_blocker import URLBlocker
+from .blockers.url_blocker import URLBlocker
 
 # PDF ANALYZER
-from .pdf_analyzer import PDFAnalyzer
+from .pdf.pdf_analyzer import PDFAnalyzer
 
 pdf_analyzer = PDFAnalyzer()
 
