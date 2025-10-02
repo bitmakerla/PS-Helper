@@ -11,7 +11,7 @@ svg_icons = {
 <path d="M17.5 35C17.5 25.335 25.335 17.5 35 17.5C38.1876 17.5 41.176 18.3522 43.75 19.8412" stroke="#FF5733" stroke-width="3" stroke-linecap="round"/>
 <path d="M7.29169 35C7.29169 21.9381 7.29169 15.4072 11.3495 11.3494C15.4073 7.29163 21.9382 7.29163 35 7.29163C48.0617 7.29163 54.5927 7.29163 58.6507 11.3494C62.7084 15.4072 62.7084 21.9381 62.7084 35C62.7084 48.0617 62.7084 54.5927 58.6507 58.6506C54.5927 62.7083 48.0617 62.7083 35 62.7083C21.9382 62.7083 15.4073 62.7083 11.3495 58.6506C7.29169 54.5927 7.29169 48.0617 7.29169 35Z" stroke="#FF5733" stroke-width="3"/>
 </svg>''',
-    
+
     'http': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="12" r="10" stroke="#1e3a8a" stroke-width="2" fill="none"/>
         <path d="M8 12h8M12 8v8" stroke="#1e3a8a" stroke-width="2" stroke-linecap="round"/>
@@ -533,34 +533,34 @@ def generate_html_report(json_path):
                 font-size: 16px;
                 font-weight: 600;
             }}
-            
+
             .status-text p.success {{ color: #059669; }}
             .status-text p.warning {{ color: #d97706; }}
             .status-text p.error {{ color: #dc2626; }}
-            
+
             .status-metrics {{
                 display: flex;
                 gap: 48px;
             }}
-            
+
             .metric-item {{
                 text-align: center;
             }}
-            
+
             .metric-value {{
                 font-size: 36px;
                 font-weight: 700;
                 color: #232323;
                 line-height: 1;
             }}
-            
+
             .metric-label {{
                 font-size: 15px;
                 color: #6b7280;
                 margin-top: 2px;
                 font-weight: 500;
             }}
-            
+
             .card {{
                 background: white;
                 border: 1px solid #e5e7eb;
@@ -570,7 +570,7 @@ def generate_html_report(json_path):
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
                 overflow: hidden;
             }}
-            
+
             .card-title {{
                 font-size: 24px;
                 font-weight: 500;
@@ -580,19 +580,19 @@ def generate_html_report(json_path):
                 align-items: center;
                 gap: 12px;
             }}
-            
+
             .card-title svg {{
                 flex-shrink: 0;
                 display: block;
             }}
-            
+
             .metrics-grid {{
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                 gap: 20px;
                 margin-bottom: 24px;
             }}
-            
+
             .metric-box {{
                 background: white;
                 border: 1px solid #e5e7eb;
@@ -601,73 +601,73 @@ def generate_html_report(json_path):
                 text-align: center;
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             }}
-            
+
             .metric-box .value {{
                 font-size: 28px;
                 font-weight: 700;
                 color: #232323;
                 line-height: 1.5;
             }}
-            
+
             .metric-box .label {{
                 font-size: 14px;
                 color: #6b7280;
             }}
-            
+
             .charts-grid {{
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
                 gap: 24px;
                 margin-bottom: 24px;
             }}
-            
+
             .card > div {{
                 width: 100% !important;
                 max-width: 100% !important;
             }}
-            
+
             .plotly-graph-div {{
                 width: 100% !important;
                 max-width: 100% !important;
             }}
-            
+
             .js-plotly-plot,
             .plot-container {{
                 width: 100% !important;
                 max-width: 100% !important;
                 margin: 0 !important;
             }}
-            
+
             .divider {{
                 border: 0;
                 border-top: 1px solid #e5e7eb;
                 margin: 32px 0;
             }}
-            
+
             .footer {{
                 text-align: center;
                 color: #9ca3af;
                 font-size: 14px;
                 margin-top: 32px;
             }}
-            
+
             @media (max-width: 768px) {{
                 .header-content {{
                     flex-direction: column;
                     text-align: center;
                 }}
-                
+
                 .status-banner {{
                     flex-direction: column;
                     text-align: center;
                 }}
-                
+
                 .status-metrics {{
                     margin-top: 20px;
                     flex-direction: column;
                     gap: 20px;
                 }}
-                
+
                 .charts-grid {{
                     grid-template-columns: 1fr;
                 }}
@@ -687,7 +687,7 @@ def generate_html_report(json_path):
                     </div>
                 </div>
             </div>
-            
+
             <div class="status-banner {status_class}">
                 <div class="status-left">
                     <div class="status-icon">{icon}</div>
@@ -711,7 +711,7 @@ def generate_html_report(json_path):
                     </div>
                 </div>
             </div>
-            
+
             <div class="card">
                 <div class="card-title">{svg_icons['performance']} Métricas de Rendimiento</div>
                 <div class="metrics-grid">
@@ -737,19 +737,19 @@ def generate_html_report(json_path):
                     </div>
                 </div>
             </div>
-            
+
             <div class="charts-grid">
                 <div class="card">
                     <div class="card-title">{svg_icons['bar']} HTTP Response Distribution</div>
                     {bar_status_html}
                 </div>
-                
+
                 <div class="card">
                     <div class="card-title">{svg_icons['top']} Top 5 Errors</div>
                     {pie_html}
                 </div>
             </div>
-            
+
             <div class="card">
                 <div class="card-title">{svg_icons['monitoring']} Scraping Speed (Items per Interval)</div>
                 {line_html}
@@ -795,5 +795,4 @@ def generate_html_report(json_path):
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_template)
 
-    print(f"✅ HTML report successfully generated: {output_path}")
     return output_path
