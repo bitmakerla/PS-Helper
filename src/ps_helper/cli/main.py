@@ -2,7 +2,7 @@ import json
 import os
 import subprocess
 import click
-from src.ps_helper.scripts.generate_report import generate_html_report
+from ..scripts.generate_report import generate_html_report
 
 TEMPLATE_REPO = "https://github.com/bitmakerla/scrapy_template.git"
 
