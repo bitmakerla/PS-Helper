@@ -40,7 +40,7 @@ def create_report(metrics_path):
     click.echo(f"📊 Generating report from '{metrics_path}'...")
 
     try:
-        report_path = generate_html_report(metrics_path)
+        report_path, _ = generate_html_report(metrics_path)
         click.echo(f"✅ Report generated successfully: {report_path}")
 
     except FileNotFoundError:

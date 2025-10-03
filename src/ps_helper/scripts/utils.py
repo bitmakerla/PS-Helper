@@ -7,7 +7,7 @@ def upload_html_to_s3(
     bucket: str,
     key: str = None,
     publico: bool = False,
-    expira_seg: int = 30 * 24 * 3600
+    expira_seg: int = 3 * 24 * 3600
 ):
     """
     Uploads HTML to S3 from memory.

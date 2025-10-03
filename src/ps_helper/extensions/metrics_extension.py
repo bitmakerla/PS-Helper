@@ -219,6 +219,10 @@ class MetricsExtension:
         """Upload HTML report to S3 from memory"""
 
         bucket_name = os.getenv('S3_BUCKET_NAME')
+
+        expiration_days = int(os.getenv('REPORT_EXPIRATION_DAYS', '3'))
+        expiration_seconds = expiration_days * 24 * 3600
+
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         key = f"scrapy-reports/{spider.name}/{timestamp}-report.html"
 
@@ -227,7 +231,7 @@ class MetricsExtension:
             bucket=bucket_name,
             key=key,
             publico=False,
-            expira_seg=3 * 24 * 3600
+            expira_seg=expiration_seconds
         )
 
         return url
