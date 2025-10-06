@@ -7,7 +7,7 @@ name = "ps-helper"
 version = "0.1.0"
 description = "Helper tools for the Professional Services team"
 authors = [
-  { name="Professional Services Team", email="your-email@company.com" }
+  { name = "Professional Services Team", email = "your-email@company.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.9"
@@ -23,6 +23,8 @@ dependencies = [
   "pytesseract>=0.3.10",
   "pillow>=10.0.0",
   "requests>=2.31.0",
+  "plotly>=6.3.0",
+  "pandas>=2.2.0",
 ]
 
 [project.scripts]
