@@ -108,9 +108,14 @@ class MetricsExtension:
         interval_size = max(1, math.ceil(total_minutes / self.max_buckets))
 
         # Success rate
+        successful_requests = self.stats.get_value("downloader/response_count", 0)
         total_requests = self.stats.get_value("downloader/request_count", 0)
-        status_200 = self.http_status_counter.get(200, 0)
-        success_rate = (status_200 / total_requests * 100) if total_requests > 0 else 0
+        retries_total = self.stats.get_value("retry/count", 0)
+
+        success_rate = (
+            (successful_requests / (total_requests - retries_total) * 100)
+            if (total_requests - retries_total) > 0 else 0
+        )
 
         # Group timeline
         aggregated = defaultdict(int)
