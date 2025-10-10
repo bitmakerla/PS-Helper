@@ -112,10 +112,10 @@ class MetricsExtension:
         total_requests = self.stats.get_value("downloader/request_count", 0)
         retries_total = self.stats.get_value("retry/count", 0)
 
-        success_rate = (
-            (successful_requests / (total_requests - retries_total) * 100)
-            if (total_requests - retries_total) > 0 else 0
-        )
+        adjusted_successful = max(successful_requests - retries_total, 0)
+        adjusted_total = max(total_requests, 1)
+
+        success_rate = (adjusted_successful / adjusted_total) * 100
 
         # Group timeline
         aggregated = defaultdict(int)
