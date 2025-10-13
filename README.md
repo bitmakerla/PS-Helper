@@ -68,13 +68,13 @@ Block unwanted URLs in your Scrapy projects with intelligent filtering.
 
 1. **Add to your Scrapy project's `settings.py`:**
 ```python
-DOWNLOADER_MIDDLEWARES = {
-    'ps_helper.url_blocker.URLBlockerMiddleware': 585,
-}
+"DOWNLOADER_MIDDLEWARES": {
+    'ps_helper.blockers.url_blocker.URLBlockerMiddleware': 585,
+},
 
 # Configure words to block
-URL_BLOCKER_WORDS = ['admin', 'login', '.css', '.js', 'api/']
-URL_BLOCKER_MODE = 'partial'  # or 'strict'
+"URL_BLOCKER_WORDS": ['admin', 'login', '.css', '.js', 'api/']
+"URL_BLOCKER_MODE": 'partial'  # or 'strict'
 ```
 
 2. **Run your spider** - unwanted URLs will be automatically filtered!
