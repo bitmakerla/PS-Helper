@@ -106,6 +106,8 @@ def generate_html_report(json_path):
             "duration": format_duration(data.get("elapsed_time_seconds", 0)),
             "items_per_minute": round(data.get("items_per_minute", 0), 1),
             "pages_per_minute": round(data.get("pages_per_minute", 0), 2),
+            "http_success_rate": data.get("http_success_rate", 0),
+            "goal_achievement": data.get("goal_achievement", 0),
         }
 
         http_errors = data.get("http_errors", {})
@@ -253,13 +255,17 @@ def generate_html_report(json_path):
     )
 
     # Success rate
-    if scrapy_stats["success_rate"] >= 95:
+    if scrapy_stats["success_rate"] >= 90:
         status_class = "success"
         status_text = "Successful"
         icon = "✅"
-    elif scrapy_stats["success_rate"] >= 80:
+    elif scrapy_stats["success_rate"] >= 70:
         status_class = "warning"
         status_text = "With Warnings"
+        icon = "⚠️"
+    elif scrapy_stats["success_rate"] >= 50:
+        status_class = "warning-orange"
+        status_text = "Below Target"
         icon = "⚠️"
     else:
         status_class = "error"
@@ -320,7 +326,18 @@ def generate_html_report(json_path):
                     labels=df_errors["Error"],
                     values=df_errors["Count"],
                     marker=dict(
-                        colors=["#FF5733", "#F8623D", "#C67448", "#838E56", "#00BF71"][
+                        colors=[
+                            "#FF5733",  # Naranja rojo (original)
+                            "#FF6B3D",  # Naranja brillante
+                            "#FF8047",  # Naranja medio
+                            "#FF9551",  # Naranja claro
+                            "#FFAA5C",  # Naranja amarillento
+                            "#D4B85E",  # Amarillo verdoso
+                            "#A8C560",  # Lima
+                            "#7CB862",  # Verde lima
+                            "#50AA64",  # Verde medio
+                            "#00BF71"   # Verde esmeralda (original)
+                        ][
                             : len(df_errors)
                         ]
                     ),
@@ -562,6 +579,11 @@ def generate_html_report(json_path):
                 border-color: #F8623D;
             }}
 
+            .status-banner.warning-orange {{
+                background: linear-gradient(135deg, #fff4e6 0%, #ffecd1 100%);
+                border-color: #FF8047;
+            }}
+
             .status-banner.error {{
                 background: linear-gradient(135deg, #ffe8e6 0%, #ffd6d1 100%);
                 border-color: #FF5733;
@@ -594,6 +616,7 @@ def generate_html_report(json_path):
 
             .status-text p.success {{ color: #059669; }}
             .status-text p.warning {{ color: #d97706; }}
+            .status-text p.warning-orange {{ color: #ea580c; }}
             .status-text p.error {{ color: #dc2626; }}
 
             .status-metrics {{
@@ -822,8 +845,12 @@ def generate_html_report(json_path):
                         <div class="metric-label">Items Scraped</div>
                     </div>
                     <div class="metric-item">
-                        <div class="metric-value">{scrapy_stats['success_rate']}%</div>
-                        <div class="metric-label">Success Rate</div>
+                        <div class="metric-value">{scrapy_stats['http_success_rate']}%</div>
+                        <div class="metric-label">Http Success Rate</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">{scrapy_stats['goal_achievement']}%</div>
+                        <div class="metric-label">Goal Achievement</div>
                     </div>
                     <div class="metric-item">
                         <div class="metric-value">{scrapy_stats['duration']}</div>

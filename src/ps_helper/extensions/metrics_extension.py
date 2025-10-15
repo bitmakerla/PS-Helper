@@ -12,7 +12,7 @@ from pydantic import ValidationError
 
 
 class MetricsExtension:
-    def __init__(self, stats, schema=None, unique_field=None, max_buckets=30):
+    def __init__(self, stats, schema=None, unique_field=None, max_buckets=30, items_expected=None):
         """
         Scrapy Metrics Extension.
 
@@ -39,14 +39,23 @@ class MetricsExtension:
         self.schema = schema
         self.unique_field = unique_field
 
+        self.items_expected = items_expected
+
     @classmethod
     def from_crawler(cls, crawler):
         schema = getattr(crawler.spidercls, "schema", None)
         unique_field = getattr(crawler.spidercls, "unique_field", None)
 
         max_buckets = crawler.settings.getint("METRICS_TIMELINE_BUCKETS", 30)
+        items_expected = getattr(crawler.spidercls, "ITEMS_EXPECTED", None)
 
-        ext = cls(crawler.stats, schema=schema, unique_field=unique_field, max_buckets=max_buckets)
+        ext = cls(
+            crawler.stats,
+            schema=schema,
+            unique_field=unique_field,
+            max_buckets=max_buckets,
+            items_expected=items_expected
+        )
 
         crawler.signals.connect(ext.spider_opened, signal=signals.spider_opened)
         crawler.signals.connect(ext.spider_closed, signal=signals.spider_closed)
@@ -108,14 +117,39 @@ class MetricsExtension:
         interval_size = max(1, math.ceil(total_minutes / self.max_buckets))
 
         # Success rate
-        successful_requests = self.stats.get_value("downloader/response_count", 0)
-        total_requests = self.stats.get_value("downloader/request_count", 0)
+        items = self.stats.get_value("custom/items_scraped", 0)
+        pages = self.stats.get_value("custom/pages_processed", 0)
+        total_requests = self.stats.get_value("downloader/response_count", 0)
         retries_total = self.stats.get_value("retry/count", 0)
 
-        adjusted_successful = max(successful_requests - retries_total, 0)
-        adjusted_total = max(total_requests, 1)
+        status_200 = self.http_status_counter.get(200, 0)
+        http_success_rate = (status_200 / total_requests * 100) if total_requests > 0 else 0
 
-        success_rate = (adjusted_successful / adjusted_total) * 100
+        # Efficiency
+        requests_per_item_obtained = total_requests / items if items > 0 else float('inf')
+
+        # Penalización por ineficiencia
+        if requests_per_item_obtained <= 3:
+            efficiency_factor = 1.0  # Sin penalización
+        elif requests_per_item_obtained <= 4:
+            efficiency_factor = 0.95  # 5% penalización
+        elif requests_per_item_obtained <= 5:
+            efficiency_factor = 0.90  # 10% penalización
+        elif requests_per_item_obtained <= 7:
+            efficiency_factor = 0.80  # 20% penalización
+        else:
+            efficiency_factor = 0.65  # 35% penalización (muy ineficiente)
+
+        if self.items_expected:
+            goal_achievement = (items / self.items_expected * 100) if self.items_expected > 0 else 0
+
+            success_rate = (
+                (goal_achievement * 0.7 + http_success_rate * 0.3) * efficiency_factor
+            )
+            success_rate = min(100, max(0, success_rate))
+        else:
+            success_rate = http_success_rate * efficiency_factor
+            success_rate = min(100, max(0, success_rate))
 
         # Group timeline
         aggregated = defaultdict(int)
@@ -133,9 +167,6 @@ class MetricsExtension:
                 key=lambda x: int(x[0].split("-")[0])
             )
         ]
-
-        items = self.stats.get_value("custom/items_scraped", 0)
-        pages = self.stats.get_value("custom/pages_processed", 0)
 
         # Speed
         items_per_min = items / (elapsed / 60) if elapsed > 0 else 0
@@ -174,6 +205,8 @@ class MetricsExtension:
             "pages_per_minute": round(pages_per_min, 2),
             "time_per_page_seconds": round(time_per_page, 2),
             "success_rate": round(success_rate, 2),
+            "http_success_rate": round(http_success_rate, 2),
+            "goal_achievement": round(goal_achievement, 2) if self.items_expected else None,
             "schema_coverage": {
                 "percentage": round(schema_coverage_percentage, 2),
                 "valid": self.valid_items,
