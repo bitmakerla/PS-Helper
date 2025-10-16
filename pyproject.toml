@@ -32,3 +32,6 @@ ps-helper = "ps_helper.cli.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
