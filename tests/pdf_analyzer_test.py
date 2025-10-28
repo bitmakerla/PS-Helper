@@ -1,5 +1,5 @@
 import os
-from ps_helper.pdf_analyzer import PDFAnalyzer
+from ps_helper.pdf.pdf_analyzer import PDFAnalyzer
 
 LOCAL_PDF_PATH = "test_files/scansmpl.pdf"
 
