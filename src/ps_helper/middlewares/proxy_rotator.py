@@ -201,11 +201,31 @@ class SmartProxyRotatorMiddleware(BaseProxyRotator):
             return random.choice(available)
 
     def _ban_proxy(self, proxy):
+        if proxy not in self.proxy_stats:
+            self.proxy_stats[proxy] = {
+                "requests": 0,
+                "success": 0,
+                "fails": 0,
+                "banned_until": 0,
+            }
         stats = self.proxy_stats[proxy]
         stats["banned_until"] = time.time() + self.cooldown_time
         logger.info(f"[Smart] Proxy temporarily banned: {proxy}")
 
     def register_failure(self, proxy):
+        if proxy not in self.proxy_stats:
+            for full_proxy in self.proxy_stats.keys():
+                if proxy in full_proxy or full_proxy.endswith(proxy.replace("http://", "")):
+                    proxy = full_proxy
+                    break
+            else:
+                self.proxy_stats[proxy] = {
+                    "requests": 0,
+                    "success": 0,
+                    "fails": 0,
+                    "banned_until": 0,
+                }
+
         stats = self.proxy_stats[proxy]
         stats["fails"] += 1
         if stats["fails"] >= self.ban_threshold:
