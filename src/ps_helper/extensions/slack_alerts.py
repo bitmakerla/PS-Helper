@@ -21,6 +21,8 @@ class EstelaSlackAlerts:
 
     def spider_opened(self, spider):
         self.start_time = datetime.datetime.now()
+        estela_job_raw = os.getenv("ESTELA_SPIDER_JOB", "Variable no encontrada")
+        spider.logger.info(f"🔍 DEBUG - VALOR CRUDO DE ESTELA_SPIDER_JOB: {estela_job_raw}")
 
     def spider_closed(self, spider, reason):
         stats = spider.crawler.stats.get_stats()
@@ -111,9 +113,9 @@ class EstelaSlackAlerts:
             if estela_spider_job:
                 parts = estela_spider_job.split(".")
                 if len(parts) == 3:
-                    project_id = parts[0]  # El largo (507eb994...)
+                    job_id = parts[0]      # El Job (14311)
                     spider_id = parts[1]   # El ID de la araña (20)
-                    job_id = parts[2]      # El Job (14313)
+                    project_id = parts[2]  # El largo (507eb994...)
                 else:
                     job_id = parts[0]
 
