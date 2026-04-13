@@ -111,9 +111,9 @@ class EstelaSlackAlerts:
             if estela_spider_job:
                 parts = estela_spider_job.split(".")
                 if len(parts) == 3:
-                    job_id = parts[0]
-                    spider_id = parts[1]
-                    project_id = parts[2]
+                    project_id = parts[0]  # El largo (507eb994...)
+                    spider_id = parts[1]   # El ID de la araña (20)
+                    job_id = parts[2]      # El Job (14313)
                 else:
                     job_id = parts[0]
 
