@@ -64,7 +64,7 @@ class EstelaSlackAlerts:
             success_rate = ((goal_achievement * 0.7) + (http_success_rate * 0.3)) * efficiency_factor
         else:
             success_rate = http_success_rate * efficiency_factor
-            
+
         success_rate = min(100.0, max(0.0, success_rate))
 
         # --- 4. Alert Triggers ---
@@ -103,18 +103,18 @@ class EstelaSlackAlerts:
             # --- 5. Estela Environment Variables & URL Builder ---
             estela_project_id = os.getenv("ESTELA_PROJECT_ID")
             estela_spider_job = os.getenv("ESTELA_SPIDER_JOB")
-            
+
             job_id = "N/A"
             spider_id = "N/A"
             job_url = None
-            
+
             # Parse ESTELA_SPIDER_JOB (Format usually: project_id.spider_id.job_id)
             if estela_spider_job:
                 parts = estela_spider_job.split(".")
                 job_id = parts[-1]
                 if len(parts) >= 2:
                     spider_id = parts[-2]
-            
+
             # Build URL if running inside Estela
             if estela_project_id and spider_id != "N/A" and job_id != "N/A":
                 base_url = "https://hetzner-staging.bitmaker.dev"
@@ -124,7 +124,7 @@ class EstelaSlackAlerts:
             network_fields = [
                 {"type": "mrkdwn", "text": f"*200 (OK):*\n{status_200}"}
             ]
-            
+
             if tunnel_errors > 0:
                 network_fields.append({"type": "mrkdwn", "text": f"*Tunnel (Timeouts):*\n{tunnel_errors}"})
             if err_403 > 0:
