@@ -23,7 +23,10 @@ Place the extension in your Scrapy project and enable it in `settings.py`:
 ```python
 EXTENSIONS = {
     'ps_helper.extensions.metrics_extension.MetricsExtension': 500,
+    'ps_helper.extensions.slack_extension.SlackAlertExtension': 600,
 }
+
+SLACK_WEBHOOK_URL = 'url_here'
 ```
 
 Optionally configure the number of timeline buckets:

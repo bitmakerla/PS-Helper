@@ -327,7 +327,7 @@ def generate_html_report(json_path):
                     values=df_errors["Count"],
                     marker=dict(
                         colors=[
-                            "#FF5733",  # Naranja rojo (original)
+                            "#FF5733",  # Naranja rojo
                             "#FF6B3D",  # Naranja brillante
                             "#FF8047",  # Naranja medio
                             "#FF9551",  # Naranja claro
@@ -336,7 +336,7 @@ def generate_html_report(json_path):
                             "#A8C560",  # Lima
                             "#7CB862",  # Verde lima
                             "#50AA64",  # Verde medio
-                            "#00BF71"   # Verde esmeralda (original)
+                            "#00BF71"   # Verde esmeralda
                         ][
                             : len(df_errors)
                         ]
