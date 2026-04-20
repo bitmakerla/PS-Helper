@@ -13,6 +13,7 @@
 - **Retry & Timeout Analysis**: Record retry attempts and timeout errors.
 - **Resource Monitoring**: Capture memory usage and response bytes.
 - **JSON Reports**: Save structured metrics reports to `metrics/YYYY-MM-DD/` folders.
+- **curl_cffi Transfer Metrics**: Reusable helper for downloaded/uploaded bytes and optional integration with `downloader/response_bytes`.
 
 ------------------------------------------------------------------------
 
@@ -33,6 +34,9 @@ Optionally configure the number of timeline buckets:
 
 ```python
 METRICS_TIMELINE_BUCKETS = 30
+
+# If True, curl_cffi downloaded bytes are also added to downloader/response_bytes
+PS_HELPER_CURL_ADD_TO_DOWNLOADER_RESPONSE_BYTES = True
 ```
 
 ## Example Usage
@@ -54,6 +58,57 @@ class MySpider(scrapy.Spider):
 ```
 
 The extension will validate items and detect duplicates automatically.
+
+------------------------------------------------------------------------
+
+## Reusable curl_cffi Byte Tracker
+
+You can use this helper from any project to record transfer bytes from `curl_cffi` responses:
+
+```python
+from ps_helper.extensions import record_curl_transfer_bytes
+
+# inside a spider or custom download handler
+record_curl_transfer_bytes(
+    stats=self.crawler.stats,
+    curl_response=curl_resp,
+    add_to_downloader_response_bytes=True,
+)
+```
+
+What it records:
+
+- `curl_cffi/bytes_down`
+- `curl_cffi/bytes_up`
+- `curl_cffi/bytes_total`
+- `curl_cffi/response_count`
+- Optional: `downloader/response_bytes` (downloaded bytes)
+
+The helper prefers curl/libcurl transfer sizes when available and falls back to `len(response.content)`.
+
+## TrackedCurlSession (Recommended)
+
+For automatic tracking on every request, use `TrackedCurlSession` as a drop-in wrapper:
+
+```python
+from ps_helper.extensions import TrackedCurlSession
+
+class MySpider(scrapy.Spider):
+    name = "my_spider"
+
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        spider = super().from_crawler(crawler, *args, **kwargs)
+        spider.curl_session = TrackedCurlSession(
+            stats=crawler.stats,
+            add_to_downloader_response_bytes=crawler.settings.getbool(
+                "PS_HELPER_CURL_ADD_TO_DOWNLOADER_RESPONSE_BYTES", True
+            ),
+        )
+        return spider
+```
+
+Then keep using `self.curl_session.get(...)` / `post(...)` normally.
 
 ------------------------------------------------------------------------
 
@@ -123,4 +178,3 @@ Example structure:
 }
 ```
 ------------------------------------------------------------------------
-

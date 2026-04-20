@@ -58,6 +58,33 @@ ps-helper create-report scrapy_stats.json
 ```
 This will automatically create a report named scrapy_stats-report.html in the same directory as your metrics file.
 
+### Track curl_cffi Downloaded Bytes
+
+Use the reusable helper to register transfer bytes in Scrapy stats (including `downloader/response_bytes`):
+
+```python
+from ps_helper.extensions import record_curl_transfer_bytes
+
+record_curl_transfer_bytes(
+    stats=self.crawler.stats,
+    curl_response=curl_resp,
+    add_to_downloader_response_bytes=True,
+)
+```
+
+With `MetricsExtension`, this is also reflected in the final JSON report under `resources`.
+
+For automatic tracking in every curl request, use `TrackedCurlSession`:
+
+```python
+from ps_helper.extensions import TrackedCurlSession
+
+self.curl_session = TrackedCurlSession(stats=self.crawler.stats)
+
+# keep using get/post as usual
+curl_resp = self.curl_session.get(url, impersonate="chrome120")
+```
+
 ---
 
 ## 🕷️ Scrapy URL Blocker Middleware

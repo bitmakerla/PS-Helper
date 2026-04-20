@@ -1,14 +1,16 @@
-import os
-import time
+import datetime
 import json
 import math
-import datetime
+import os
+import time
 from collections import defaultdict
+
+from pydantic import ValidationError
+from scrapy import signals
+
 from ..scripts.generate_report import generate_html_report
 from ..scripts.utils import upload_html_to_s3
-
-from scrapy import signals
-from pydantic import ValidationError
+from .curl_metrics import record_curl_transfer_bytes
 
 
 class MetricsExtension:
@@ -40,6 +42,7 @@ class MetricsExtension:
         self.unique_field = unique_field
 
         self.items_expected = items_expected
+        self.curl_add_to_downloader_response_bytes = True
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -48,6 +51,9 @@ class MetricsExtension:
 
         max_buckets = crawler.settings.getint("METRICS_TIMELINE_BUCKETS", 30)
         items_expected = getattr(crawler.spidercls, "ITEMS_EXPECTED", None)
+        curl_add_to_downloader_response_bytes = crawler.settings.getbool(
+            "PS_HELPER_CURL_ADD_TO_DOWNLOADER_RESPONSE_BYTES", True
+        )
 
         ext = cls(
             crawler.stats,
@@ -56,6 +62,7 @@ class MetricsExtension:
             max_buckets=max_buckets,
             items_expected=items_expected
         )
+        ext.curl_add_to_downloader_response_bytes = curl_add_to_downloader_response_bytes
 
         crawler.signals.connect(ext.spider_opened, signal=signals.spider_opened)
         crawler.signals.connect(ext.spider_closed, signal=signals.spider_closed)
@@ -95,7 +102,7 @@ class MetricsExtension:
                 self.field_coverage[field]["complete"] += 1
 
         # Temporal timeline: save timestamp in seconds
-        elapsed_seconds = int(time.time() - self.start_time)
+        elapsed_seconds = int(time.time() - (self.start_time or time.time()))
         self.timeline[elapsed_seconds] += 1
 
         # Check duplicates if unique_field is defined
@@ -109,7 +116,18 @@ class MetricsExtension:
     def spider_error(self, failure, response, spider):
         self.stats.inc_value("custom/errors")
 
+    def record_curl_response(self, curl_response):
+        """Public helper to register curl_cffi transfer bytes from spiders/handlers."""
+        return record_curl_transfer_bytes(
+            self.stats,
+            curl_response,
+            add_to_downloader_response_bytes=self.curl_add_to_downloader_response_bytes,
+        )
+
     def spider_closed(self, spider, reason):
+        if self.start_time is None:
+            self.start_time = time.time()
+
         elapsed = time.time() - self.start_time
         total_minutes = elapsed / 60
 
@@ -140,6 +158,7 @@ class MetricsExtension:
         else:
             efficiency_factor = 0.65  # 35% penalización (muy ineficiente)
 
+        goal_achievement = None
         if self.items_expected:
             goal_achievement = (items / self.items_expected * 100) if self.items_expected > 0 else 0
 
@@ -194,6 +213,10 @@ class MetricsExtension:
         # Memory and bytes
         peak_mem = self.stats.get_value("memusage/max", 0)  # bytes
         total_bytes = self.stats.get_value("downloader/response_bytes", 0)
+        curl_bytes_down = self.stats.get_value("curl_cffi/bytes_down", 0)
+        curl_bytes_up = self.stats.get_value("curl_cffi/bytes_up", 0)
+        curl_bytes_total = self.stats.get_value("curl_cffi/bytes_total", 0)
+        curl_response_count = self.stats.get_value("curl_cffi/response_count", 0)
 
         metrics = {
             "spider_name": spider.name,
@@ -223,6 +246,16 @@ class MetricsExtension:
             "resources": {
                 "peak_memory_bytes": peak_mem,
                 "downloaded_bytes": total_bytes,
+                "downloaded_kb": round(total_bytes / 1024, 2),
+                "downloaded_mb": round(total_bytes / (1024 * 1024), 2),
+                "curl_cffi": {
+                    "response_count": curl_response_count,
+                    "bytes_down": curl_bytes_down,
+                    "bytes_up": curl_bytes_up,
+                    "bytes_total": curl_bytes_total,
+                    "bytes_total_kb": round(curl_bytes_total / 1024, 2),
+                    "bytes_total_mb": round(curl_bytes_total / (1024 * 1024), 2),
+                },
             },
             "timeline": timeline_sorted,
             "timeline_interval_minutes": interval_size,
@@ -257,6 +290,8 @@ class MetricsExtension:
         """Upload HTML report to S3 from memory"""
 
         bucket_name = os.getenv('S3_BUCKET_NAME')
+        if not bucket_name:
+            raise ValueError("S3_BUCKET_NAME is required to upload report")
 
         expiration_days = int(os.getenv('REPORT_EXPIRATION_DAYS', '3'))
         expiration_seconds = expiration_days * 24 * 3600
