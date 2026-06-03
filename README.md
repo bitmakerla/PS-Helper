@@ -74,6 +74,43 @@ record_curl_transfer_bytes(
 
 With `MetricsExtension`, this is also reflected in the final JSON report under `resources`.
 
+### Normalize Or Score AI Values
+
+Use the reusable confidence helpers to normalize an LLM value against a
+controlled list, or audit an already-normalized value.
+
+Normalize when you do not have a normalized value yet:
+
+```python
+from ps_helper.confidence import normalize_with_confidence
+
+category_audit = normalize_with_confidence(
+    extracted_value="Kitchen tools",
+    allowed_values=["Kitchen Cookware Sets", "Canvas Tools & Accessories"],
+    field_name="category",
+    minimum_label="GOOD",
+)
+
+category_normalized = category_audit["normalized_value"]
+```
+
+Score when another system already chose the normalized value:
+
+```python
+from ps_helper.confidence import score_normalized_value
+
+category_audit = score_normalized_value(
+    extracted_value="Kitchen tools",
+    normalized_value="Canvas Tools & Accessories",
+    allowed_values=["Kitchen Cookware Sets", "Canvas Tools & Accessories"],
+    field_name="category",
+    llm_confidence=0.82,
+)
+```
+
+The output includes `confidence_score`, `confidence_label`, normalization
+status, validation flags, and audit metadata for candidate ranking.
+
 For automatic tracking in every curl request, use `TrackedCurlSession`:
 
 ```python
