@@ -23,6 +23,7 @@ dependencies = [
   "pytesseract>=0.3.10",
   "pillow>=10.0.0",
   "requests>=2.31.0",
+  "curl_cffi>=0.14.0",
   "plotly>=6.3.0",
   "pandas>=2.2.0",
 ]
